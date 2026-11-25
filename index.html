@@ -60,6 +60,17 @@ document.getElementById('direct').href = SITE;
 
 function probleme(texte) { msg.textContent = texte; aide.className = 'vu'; }
 
+// « Rester connecté » : le site range ici sa connexion, pour qu'elle reste même après la fermeture de l'appli.
+addEventListener('message', function (e) {
+  var d = e.data;
+  if (!/^https:\/\/[a-z0-9-]+\.googleusercontent\.com$/.test(e.origin) || !d || !d.tcdash || !e.source) return;
+  try {
+    if (d.tcdash === 'get') e.source.postMessage({ tcdash: 'memo', memo: JSON.parse(localStorage.getItem('tcmemo') || 'null') }, e.origin);
+    else if (d.tcdash === 'set' && d.memo && typeof d.memo.jeton === 'string') localStorage.setItem('tcmemo', JSON.stringify({ jeton: d.memo.jeton, sel: String(d.memo.sel || '') }));
+    else if (d.tcdash === 'clear') localStorage.removeItem('tcmemo');
+  } catch (x) {}
+});
+
 if (navigator.onLine === false) {
   probleme('Pas de connexion internet. Vérifiez le wifi ou la 4G, puis réessayez.');
 } else {
