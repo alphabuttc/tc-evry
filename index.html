@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TikTok TC Évry</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TC Évry">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<style>
+html,body{margin:0;height:100%;background:#fff;overflow:hidden}
+body{font:15px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1d1d1f;-webkit-font-smoothing:antialiased}
+#cadre{position:fixed;top:env(safe-area-inset-top,0);right:env(safe-area-inset-right,0);bottom:env(safe-area-inset-bottom,0);left:env(safe-area-inset-left,0)}
+#cadre iframe{display:block;width:100%;height:100%;border:0}
+#attente{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#fff;text-align:center;padding:24px;transition:opacity .35s ease}
+#attente.fini{opacity:0;pointer-events:none}
+#attente img{width:96px;height:96px;border-radius:22px;box-shadow:0 6px 24px rgba(0,0,0,.12)}
+#attente p{margin:0;color:#6e6e73}
+#aide{display:none;flex-direction:column;align-items:center;gap:10px}
+#aide.vu{display:flex}
+.btn{display:inline-block;padding:11px 20px;border-radius:980px;border:0;background:#0071e3;color:#fff;font:inherit;font-weight:500;text-decoration:none;cursor:pointer}
+.btn.clair{background:#f5f5f7;color:#0071e3}
+#astuce{position:fixed;z-index:6;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:none;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:rgba(29,29,31,.92);color:#fff;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+#astuce.vu{display:flex}
+#astuce span{flex:1}
+#astuce button{flex:none;width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.18);color:#fff;font-size:16px;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="cadre"><iframe id="site" title="Dashboard TikTok TC Évry" allow="clipboard-read; clipboard-write; fullscreen"></iframe></div>
+
+<div id="attente">
+  <img src="apple-touch-icon.png" alt="">
+  <p id="msg">Chargement…</p>
+  <div id="aide">
+    <button class="btn" type="button" onclick="location.reload()">Réessayer</button>
+    <a class="btn clair" id="direct" target="_blank" rel="noopener">Ouvrir le site dans Safari</a>
+  </div>
+</div>
+
+<div id="astuce" role="note">
+  <span>Pour l'installer sur l'iPhone : bouton <b>Partager</b>, puis <b>Sur l'écran d'accueil</b>.</span>
+  <button type="button" aria-label="Fermer" onclick="fermerAstuce()">✕</button>
+</div>
+
+<script>
+// Adresse du site (Apps Script). Elle ne change pas tant qu'on redéploie avec « Gérer les déploiements → Nouvelle version ».
+var SITE = 'https://script.google.com/macros/s/AKfycbxwv9X0kkHJtyc3iFaYJuFGgU4m9rk12mXZ1xnsUuwTkJbk2vpiWnq0B0QFmMdXtBSg_w/exec';
+
+var site = document.getElementById('site');
+var attente = document.getElementById('attente');
+var msg = document.getElementById('msg');
+var aide = document.getElementById('aide');
+document.getElementById('direct').href = SITE;
+
+function probleme(texte) { msg.textContent = texte; aide.className = 'vu'; }
+
+if (navigator.onLine === false) {
+  probleme('Pas de connexion internet. Vérifiez le wifi ou la 4G, puis réessayez.');
+} else {
+  var lent = setTimeout(function () { probleme('Le site met du temps à répondre…'); }, 20000);
+  site.addEventListener('load', function () { clearTimeout(lent); attente.className = 'fini'; });
+  site.src = SITE;
+}
+
+// Petite astuce affichée seulement sur iPhone/iPad dans Safari (pas dans l'appli installée).
+var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+var installee = window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+function fermerAstuce() { document.getElementById('astuce').className = ''; try { localStorage.setItem('astuceVue', '1'); } catch (e) {} }
+try { if (ios && !installee && !localStorage.getItem('astuceVue')) document.getElementById('astuce').className = 'vu'; } catch (e) {}
+</script>
+</body>
+</html>
